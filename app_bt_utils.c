@@ -97,7 +97,7 @@ void print_array(void * to_print, uint16_t len)
 
 /**
 * Function Name:
-* get_bt_event_name
+* get_btm_event_name
 *
 * Function Description:
 * @brief  The function converts the wiced_bt_management_evt_t enum value to its
@@ -109,7 +109,7 @@ void print_array(void * to_print, uint16_t len)
 * @return wiced_bt_management_evt_t
 *
 */
-const char *get_bt_event_name(wiced_bt_management_evt_t event)
+const char *get_btm_event_name(wiced_bt_management_evt_t event)
 {
     switch ( (int)event )
     {
@@ -148,6 +148,7 @@ const char *get_bt_event_name(wiced_bt_management_evt_t event)
     CASE_RETURN_STR(BTM_BLE_PHY_UPDATE_EVT)
     CASE_RETURN_STR(BTM_LPM_STATE_LOW_POWER)
     CASE_RETURN_STR(BTM_MULTI_ADVERT_RESP_EVENT)
+    CASE_RETURN_STR(BTM_BLE_DATA_LENGTH_UPDATE_EVENT)
     }
 
     return "UNKNOWN_EVENT";
