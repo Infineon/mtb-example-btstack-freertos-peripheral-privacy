@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2021-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -55,20 +55,19 @@
 #include "mtb_kvstore.h"
 #include "app_bt_utils.h"
 #include "cy_serial_flash_qspi.h"
+#include "app_bt_bonding.h"
 #include <inttypes.h>
+#include "app_internal_aux_flash.h"
+
 /*******************************************************************
  * Variable Definitions
  ******************************************************************/
-/*Structure to store bond data*/
-tBondInfo                                  bondinfo={0};
-
-/*Variable to store CCCD Data*/
-uint16_t  peer_cccd_data[BOND_INDEX_MAX]={0};
-
-mtb_kvstore_t                               kvstore_obj;
-const  uint32_t                             qspi_bus_freq_hz = QSPI_BUS_FREQ;
-/*Local Indentity Key*/
-wiced_bt_local_identity_keys_t              identity_keys={0};
+/*Kvstore block device*/
+mtb_kvstore_bd_t    block_device;
+mtb_kvstore_t  kvstore_obj;
+bond_info_t    bondinfo;
+wiced_bt_local_identity_keys_t identity_keys;
+uint16_t       peer_cccd_data[BOND_INDEX_MAX];
 
 /*******************************************************************************
  *                              FUNCTION DEFINITIONS
@@ -85,36 +84,20 @@ wiced_bt_local_identity_keys_t              identity_keys={0};
 *
 * @return  None
 */
-void  app_kv_store_init(void)
+
+void app_kv_store_init(void)
 {
-
-    uint32_t sector_size = 0;
-    uint32_t length = 0;
-    uint32_t start_addr = 0;
-
-    /* Initialize the QSPI*/
-    cy_rslt_t rslt = cy_serial_flash_qspi_init(smifMemConfigs[0], CYBSP_QSPI_D0, CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3, NC,
-                                     NC, NC, NC, CYBSP_QSPI_SCK, CYBSP_QSPI_SS, qspi_bus_freq_hz);
-    /*Check if the QSPI initialization was successfull*/
-    if (rslt == CY_RSLT_SUCCESS)
-    {
-        printf("succesfully initialized QSPI \r\n");
-    }
-    else
-    {
-        printf("failed to initialize QSPI \r\n");
-        CY_ASSERT(0);
-    }
-    /*Define the space to be used for Bond Data Storage*/
-    sector_size = cy_serial_flash_qspi_get_erase_size(QSPI_GET_ERASE_SIZE);
-    length = sector_size * 2;
+    cy_rslt_t rslt;
+    uint32_t  start_addr, length;
+    app_kvstore_bd_init();
+    get_kvstore_init_params(&length, &start_addr);
 
     /*Initialize kv-store library*/
     rslt = mtb_kvstore_init(&kvstore_obj, start_addr, length, &block_device);
-    /*Check if the kv-store initialization was successfull*/
-    if (CY_RSLT_SUCCESS !=  rslt)
+    /*Check if the kv-store initialization was successful*/
+    if (CY_RSLT_SUCCESS != rslt)
     {
-        printf("failed to initialize kv-store \r\n");
+        printf("failed to initialize kv-store \n");
         CY_ASSERT(0);
     }
 }
@@ -159,7 +142,7 @@ cy_rslt_t app_bt_restore_bond_data(void)
     cy_rslt_t rslt = mtb_kvstore_read(&kvstore_obj, "bond_data", (uint8_t *)&bondinfo, &data_size);
     if (rslt != CY_RSLT_SUCCESS)
     {
-        printf("Bond data not present in the flash!\r\n");
+        printf("Bond data not present in the flash!\n");
         return rslt;
     }
     return rslt;
@@ -379,9 +362,9 @@ uint8_t app_bt_find_device_in_flash(uint8_t *bd_addr)
     uint8_t index =  BOND_INDEX_MAX; /*Return out of range value if device is not found*/
     for (uint8_t count = 0; count < bondinfo.slot_data[NUM_BONDED]; count++)
     {
-        if (memcmp(&(bondinfo.link_keys[count].bd_addr), bd_addr, sizeof(wiced_bt_device_address_t)) == 0)
+        if (0 == memcmp(&(bondinfo.link_keys[count].bd_addr), bd_addr, sizeof(wiced_bt_device_address_t)))
         {
-            printf("Found device in the flash!\r\n");
+            printf("Found device in the flash!\n");
             index = count;
             break; /* Exit the loop since we found what we want */
         }
@@ -462,7 +445,7 @@ cy_rslt_t app_bt_save_local_identity_key(wiced_bt_local_identity_keys_t id_key)
 void app_bt_add_devices_to_address_resolution_db(void)
 {
     /* Copy in the keys and add them to the address resolution database */
-    for (uint8_t i = 0; i < bondinfo.slot_data[NUM_BONDED]; i++)
+    for (uint8_t i = 0; (i < bondinfo.slot_data[NUM_BONDED]) && (i < BOND_INDEX_MAX); i++)
     {
         /* Add device to address resolution database */
         wiced_result_t result = wiced_bt_dev_add_device_to_address_resolution_db(&bondinfo.link_keys[i]);
@@ -495,7 +478,7 @@ void print_bond_data()
     for (uint8_t i = 0; i < bondinfo.slot_data[NUM_BONDED]; i++)
     {
         printf("Slot: %d",i+1);
-        printf(" Device Bluetooth Address: ");
+        printf("Device Bluetooth Address: ");
         print_bd_address(bondinfo.link_keys[i].bd_addr);
         printf("Device Keys: \n");
         print_array(&(bondinfo.link_keys[i].key_data), sizeof(wiced_bt_device_sec_keys_t));

@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2021-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -45,6 +45,7 @@
 *        Header Files
 *******************************************************************************/
 #include "wiced_bt_stack.h"
+#include "wiced_bt_ble.h"
 #include "cybsp.h"
 #include "cyhal.h"
 #include "cy_retarget_io.h"
@@ -59,65 +60,64 @@
 *******************************************************************************/
 /* Max number of bonded devices */
 #define  BOND_INDEX_MAX                      (4)
-
 /* LE Key Size */
 #define  KEY_SIZE_MAX                        (0x10)
 
-#define  QSPI_BUS_FREQ                       (50000000l)
-#define  QSPI_GET_ERASE_SIZE                 (0)
-
-/*******************************************************************
- * Variable Definitions
- ******************************************************************/
-/* Structure to store info that goes into serial flash - it holds the number of bonded devices, remote keys and local keys */
-typedef struct
-{
-    uint8_t slot_data[2];
-    wiced_bt_device_link_keys_t link_keys[BOND_INDEX_MAX];
-    wiced_bt_ble_privacy_mode_t privacy_mode[BOND_INDEX_MAX];
-}tBondInfo;
-
-extern tBondInfo bondinfo;
-
-extern uint16_t  peer_cccd_data[BOND_INDEX_MAX];
-
-/* enum for bondinfo structure */
-enum
+/*******************************************************************************
+*        Structures and Enumerations
+*******************************************************************************/
+/* enum for bond_info_t structure */
+enum bond_info_e
 {
     NUM_BONDED ,
     NEXT_FREE_INDEX
 };
 
-/*Kvstore block device*/
-extern  mtb_kvstore_bd_t                    block_device;
+/* Structure to store info that goes into serial flash - it holds the number of bonded devices, remote keys and local keys */
+typedef struct
+{
+    uint8_t slot_data[2];   /* Refer  bond_info_e */
+    wiced_bt_device_link_keys_t link_keys[BOND_INDEX_MAX];
+    wiced_bt_ble_privacy_mode_t privacy_mode[BOND_INDEX_MAX];
+}bond_info_t;
 
-/* Object for kvstore library*/
-extern mtb_kvstore_t                               kvstore_obj;
+/*******************************************************************************
+ * Variable Definitions
+ ******************************************************************************/
 
-/*Local Indentity Key*/
-extern wiced_bt_local_identity_keys_t              identity_keys;
+/* Kvstore block device */
+extern  mtb_kvstore_bd_t  block_device;
 
-/*SMIF configuration structure*/
-extern const cy_stc_smif_mem_config_t* const smifMemConfigs[];
+/* Object for kvstore library */
+extern mtb_kvstore_t  kvstore_obj;
+
+/* Variable to store pairing key information */
+extern bond_info_t   bondinfo;
+
+/* Variable to store CCCD values of peer device */
+extern uint16_t   peer_cccd_data[BOND_INDEX_MAX];
+
+/* Variable to store identity keys of our device */
+extern wiced_bt_local_identity_keys_t identity_keys;
 
 /*******************************************************************
  * Function Prototypes
  ******************************************************************/
-void initialize_kv_store(void);
-void print_device_selection_menu(void);
-void print_bond_data(void);
-void app_bt_add_devices_to_address_resolution_db(void);
+void app_kv_store_init(void);
 cy_rslt_t app_bt_restore_bond_data(void);
-cy_rslt_t app_bt_delete_bond_info(void);
-cy_rslt_t app_bt_update_slot_data(void);
 cy_rslt_t app_bt_update_bond_data(void);
+cy_rslt_t app_bt_delete_bond_info(void);
+wiced_result_t app_bt_delete_device_info(uint8_t index);
+cy_rslt_t app_bt_update_slot_data(void);
 cy_rslt_t app_bt_save_device_link_keys(wiced_bt_device_link_keys_t *link_key);
 cy_rslt_t app_bt_save_local_identity_key(wiced_bt_local_identity_keys_t id_key);
 cy_rslt_t app_bt_read_local_identity_keys(void);
 cy_rslt_t app_bt_update_cccd(uint16_t cccd, uint8_t index);
 cy_rslt_t app_bt_restore_cccd(void);
-wiced_result_t app_bt_delete_device_info(uint8_t index);
 uint8_t app_bt_find_device_in_flash(uint8_t *bd_addr);
+void app_bt_add_devices_to_address_resolution_db(void);
+void print_bond_data(void);
+void print_device_selection_menu(void);
 
 #endif // __APP_BT_BONDING_H_
 

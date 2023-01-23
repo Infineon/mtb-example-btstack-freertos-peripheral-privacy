@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright 2020-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2020-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -209,7 +209,7 @@ standard names - or at least those used in the unmodified vector table. */
  * GCC toolchain: the application must provide the implementation for the required
  * newlib hook functions: __malloc_lock, __malloc_unlock, __env_lock, __env_unlock.
  * FreeRTOS-compatible implementation is provided by the clib-support library:
- * https://github.com/cypresssemiconductorco/clib-support
+ * https://github.com/Infineon/clib-support
  *
  * ARM/IAR toolchains: the application must provide the reent.h header to adapt
  * FreeRTOS's configUSE_NEWLIB_REENTRANT to work with the toolchain-specific C library.

@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2021-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -75,9 +75,10 @@ static wiced_bt_ble_advert_mode_t *         p_adv_mode = NULL;
 static wiced_bool_t                         bond_mode = WICED_TRUE;
 
 /* This is the index for the link keys,cccd and privacy mode of the host we are currently bonded to */
-static uint8_t                             bondindex = 0;
+static uint8_t                              bondindex = 0;
 
 static  cyhal_pwm_t                         adv_led_pwm;
+bool                                        pairing_mode;
 
 /* Configure GPIO interrupt */
 cyhal_gpio_callback_data_t button_cb_struct;
@@ -541,6 +542,14 @@ wiced_bt_gatt_status_t ble_app_connect_handler( wiced_bt_gatt_connection_status_
         if (p_conn_status->connected)
         {
             /* Device has connected */
+#ifdef PSOC6_BLE
+    /* Refer to the note in Document History section of Readme.md */
+    if(pairing_mode == TRUE)
+    {
+        app_bt_add_devices_to_address_resolution_db();
+        pairing_mode = FALSE;
+    }
+#endif
             printf("Connected : BD Addr: " );
             print_bd_address(p_conn_status->bd_addr);
             printf("Connection ID '%d'\n", p_conn_status->conn_id );
@@ -1295,6 +1304,24 @@ void uart_task(void *pvParameters)
                         /* Put into bonding mode  */
                         bond_mode = WICED_TRUE;
                         printf("Bonding Mode Entered\r\n");
+#ifdef PSOC6_BLE
+/* This is a workaround for the issue mentioned in the Notes section under Document History in Readme.md
+ * It allows the PSoC 6 Bluetooth LE device to connect to a new peer device even if PSoC 6 Bluetooth LE
+ * has bonded with other devices previously. If there is a need to connect to a new device, clear the
+ * controller address resolution list, start advertisement to connect with any new device, add the
+ * old devices back to controller address resolution list immediately after connection. */
+                pairing_mode = TRUE;
+                wiced_result_t result = wiced_bt_ble_address_resolution_list_clear_and_disable();
+                if(WICED_BT_SUCCESS == result)
+                {
+                    printf("Address resolution list cleared successfully \n");
+                }
+                else
+                {
+                    printf("Failed to clear address resolution list \n");
+                }
+#endif
+
                         /* restart the advertisements in Bonding Mode */
                         wiced_bt_start_advertisements(BTM_BLE_ADVERT_UNDIRECTED_HIGH, 0, NULL);
                     }

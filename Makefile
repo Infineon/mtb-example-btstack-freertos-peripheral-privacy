@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2018-2022, Cypress Semiconductor Corporation (an Infineon company)
+# Copyright 2018-2023, Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,6 +70,12 @@ CONFIG=Debug
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+PSOC6 = 0
+
+ifeq ($(TARGET), $(filter $(TARGET), APP_CY8CKIT-062-BLE APP_CY8CPROTO-063-BLE APP_CYBLE-416045-EVAL))
+PSOC6_BLE = 1
+DEFINES+= PSOC6_BLE
+endif
 
 ################################################################################
 # Advanced Configuration
@@ -101,7 +107,7 @@ SOURCES=
 INCLUDES=./configs
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE
+DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF CY_RTOS_AWARE
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=

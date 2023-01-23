@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2021-2022, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -42,6 +42,7 @@
 /*******************************************************************************
 *        Header Files
 *******************************************************************************/
+#include "app_internal_aux_flash.h"
 #include "wiced_bt_stack.h"
 #include "cybsp.h"
 #include "cyhal.h"
@@ -49,11 +50,15 @@
 #include <FreeRTOS.h>
 #include <task.h>
 #include "cycfg_bt_settings.h"
+#include "cybsp_bt_config.h"
+#include "cybt_platform_config.h"
 #include <queue.h>
 #include "peripheral_privacy.h"
 #include "cy_serial_flash_qspi.h"
-#include "app_serial_flash.h"
 #include "mtb_kvstore.h"
+#include "cybt_platform_config.h"
+#include "cybsp_bt_config.h"
+#include "app_bt_bonding.h"
 /*******************************************************************
  * Variable Definitions
  ******************************************************************/
@@ -67,9 +72,6 @@ QueueHandle_t xLEDQueue;
 /* FreeRTOS task handle for button task. Button task is used to start advertisment
  * or enable/disable notification from peer */
 TaskHandle_t  button_task_handle;
-
-/*Kvstore block device*/
-mtb_kvstore_bd_t                    block_device;
 
 /**
  * Function Name:
@@ -91,7 +93,7 @@ int main()
     wiced_result_t wiced_result;
 
     /*Initialize the block device used by kv-store for perfroming read/write operations to the flash*/
-    app_kvstore_bd_init(&block_device);
+    app_kvstore_bd_config(&block_device);
 
     /* Initialize the board support package */
     cy_result = cybsp_init();
