@@ -1,5 +1,5 @@
 /*******************************************************************************
- * File Name: app_internal_aux_flash.c
+ * File Name: app_serial_flash.c
  *
  * Description: This file contains block device function implementations
  *              required by kv-store library
@@ -43,18 +43,16 @@
 /*******************************************************************************
  * Header files
  ******************************************************************************/
-#ifdef USE_INTERNAL_FLASH
+#ifndef USE_INTERNAL_FLASH
 
-#include "cyhal_flash.h"
+#include "cybsp.h"
+#include "cycfg_qspi_memslot.h"
+#include "cy_serial_flash_qspi.h"
 #include "mtb_kvstore.h"
-#include "cy_retarget_io.h"
 #include "app_flash_common.h"
+#include "cy_retarget_io.h"
 
-cy_rslt_t result;
-
-static cyhal_flash_t flash_obj;
-static cyhal_flash_block_info_t flash_block_info;
-cyhal_flash_info_t flash_info;
+const  uint32_t  qspi_bus_freq_hz = QSPI_BUS_FREQ;
 
 /*******************************************************************************
  * Function Prototypes
@@ -62,7 +60,6 @@ cyhal_flash_info_t flash_info;
 static uint32_t bd_read_size(void* context, uint32_t addr);
 static uint32_t bd_program_size(void* context, uint32_t addr);
 static uint32_t bd_erase_size(void* context, uint32_t addr);
-
 static cy_rslt_t bd_read(void* context, uint32_t addr,
                          uint32_t length, uint8_t* buf);
 static cy_rslt_t bd_program(void* context, uint32_t addr,
@@ -82,7 +79,7 @@ static cy_rslt_t bd_erase(void* context, uint32_t addr, uint32_t length);
  *
  *   @param  void* context : Context object that is passed into mtb_kvstore_init
              uint32_t addr : Address for which the read size is queried.
-                           This address is passed in as start_addr + offset.
+             This address is passed in as start_addr + offset.
  *
  *
  *   @return uint32_t: Read size of the memory device.
@@ -104,19 +101,16 @@ static uint32_t bd_read_size(void* context, uint32_t addr)
  *
  *   @param  void* context: Context object that is passed into mtb_kvstore_init
              uint32_t addr: Address for which the program size is queried.
-                          This address is passed in as start_addr + offset.
+             This address is passed in as start_addr + offset.
  *
  *
- *   @return uint32_t     : Program size of the memory device.
+ *   @return uint32_t: Program size of the memory device.
  *
  */
 static uint32_t bd_program_size(void* context, uint32_t addr)
 {
     (void)context;
-    if(flash_info.block_count != 0)
-        return flash_block_info.page_size;
-    else
-        return CY_RSLT_TYPE_ERROR;
+    return cy_serial_flash_qspi_get_prog_size(addr);
 }
 
 /**
@@ -128,100 +122,82 @@ static uint32_t bd_program_size(void* context, uint32_t addr)
  *
  *   @param  void* context: Context object that is passed into mtb_kvstore_init
              uint32_t addr: Address for which the program size is queried.
-                          This address is passed in as start_addr + offset.
+             This address is passed in as start_addr + offset.
  *
  *
- *   @return uint32_t     : Erase size of the memory device.
+ *   @return uint32_t Erase size of the memory device.
  *
  */
 static uint32_t bd_erase_size(void* context, uint32_t addr)
 {
     (void)context;
-    if(flash_info.block_count != 0)
-        return flash_block_info.sector_size;
-    else
-        return CY_RSLT_TYPE_ERROR;
+    return cy_serial_flash_qspi_get_erase_size(addr);
 }
 
-/*******************************************************************************
+/**
  * Function Name: bd_read
- *******************************************************************************
+ *
  * Function Description:
  *   @brief Function for reading data from the block device.
  *
- *   @param  void* context : Context object that is passed into mtb_kvstore_init
-             uint32_t addr: Address to read the data from the block device.
-                          This address is passed in as start_addr + offset
-             uint32_t length : Length of the data to be read into the buffer
-             uint8_t* buf : Buffer to read the data.
+ *   @param void* context   : Context object that is passed into mtb_kvstore_init
+ *   @param uint32_t addr   : Address to read the data from the block device
+ *          This address is passed in as start_addr + offset
+ *   @param uint32_t length : Length of the data to be read into the buffer
+ *   @param uint8_t* buf    : Buffer to read the data.
  *
  *
  *   @return cy_rslt_t: Result of the read operation.
  *
- ******************************************************************************/
+ */
 static cy_rslt_t bd_read(void* context, uint32_t addr,
                          uint32_t length, uint8_t* buf)
 {
     (void)context;
-    return cyhal_flash_read(&flash_obj, addr, buf, length);
+    return cy_serial_flash_qspi_read(addr, length, buf);
 }
 
 /**
  * Function Name: bd_program
  *
  * Function Description:
- *   @brief Function for programming of a block device for a specific address
+ * @brief
  *
- *   @param void* context  : Context object that is passed into mtb_kvstore_init
- *   @param uint32_t addr  : Address to program the data into the block device.
- *          This address is passed in as start_addr + offset
- *   @param int32_t length : Length of the data to be written
- *   @param uint8_t* buf   : Data that needs to be written
+ * @param void* context   : Context object that is passed into mtb_kvstore_init
+ * @param uint32_t addr   : Address to program the data into the block device.
+ *        This address is passed in as start_addr + offset
+ * @param uint32_t length : Length of the data to be written
+ * @param uint8_t* buf    : Data that needs to be written
  *
- *   @return cy_rslt_t     : Result of the program operation.
+ * @return cy_rslt_t      : Result of the program operation.
  *
  */
 static cy_rslt_t bd_program(void* context, uint32_t addr,
                             uint32_t length, const uint8_t* buf)
 {
     (void)context;
-    uint32_t prog_size = bd_program_size(context, addr);
-    CY_ASSERT(0 == (length % prog_size));
-    volatile cy_rslt_t result = CY_RSLT_SUCCESS;
-    for(uint32_t loc = addr; result == CY_RSLT_SUCCESS && loc < addr + length;
-         loc += prog_size, buf += prog_size)
-    {
-        result = cyhal_flash_program(&flash_obj, loc, (const uint32_t*)buf);
-    }
-    return result;
+    return cy_serial_flash_qspi_write(addr, length, buf);
 }
 
 /**
  * Function Name: bd_erase
  *
  * Function Description:
- *   @brief Function for erasing of a block device for a specific address
+ *   @brief
  *
  *   @param context        : Context object that is passed into mtb_kvstore_init
-     @param uint32_t addr  : Address to erase the data from the device.
-            This address is passed in as start_addr + offset
-     @param uint32_t length: Length of the data that needs to be erased
+ *   @param uint32_t addr  : Address to erase the data from the device.
+ *          This address is passed in as start_addr + offset
+ *   @param uint32_t length: Length of the data that needs to be erased
  *
  *
- *   @return cy_rslt_t     : Result of the erase operation.
+ * @return cy_rslt_t       : Result of the erase operation.
  *
  */
 static cy_rslt_t bd_erase(void* context, uint32_t addr, uint32_t length)
 {
     (void)context;
-    uint32_t erase_size = bd_erase_size(context, addr);
-    CY_ASSERT(0 == (length % erase_size));
-    cy_rslt_t result = CY_RSLT_SUCCESS;
-    for(uint32_t loc = addr; result == CY_RSLT_SUCCESS && loc < addr + length; loc += erase_size)
-    {
-        result = cyhal_flash_erase(&flash_obj, loc);
-    }
-    return result;
+    return cy_serial_flash_qspi_erase(addr, length);
 }
 /**
  * Function Name: app_kvstore_bd_config
@@ -230,9 +206,9 @@ static cy_rslt_t bd_erase(void* context, uint32_t addr, uint32_t length)
  *   @brief  This function provides the pointer to the implemented
  *           prototype function for the block device.
  *
- *   @param mtb_kvstore_bd_t : Block device interface
+ *   @param  mtb_kvstore_bd_t : Block device interface
  *
- *   @return None
+ *   @return void
  *
  */
 void app_kvstore_bd_config(mtb_kvstore_bd_t* device)
@@ -243,7 +219,7 @@ void app_kvstore_bd_config(mtb_kvstore_bd_t* device)
     device->read_size    = bd_read_size;
     device->program_size = bd_program_size;
     device->erase_size   = bd_erase_size;
-    device->context      = &flash_obj;
+    device->context      = NULL;
 }
 
 /**
@@ -251,34 +227,66 @@ void app_kvstore_bd_config(mtb_kvstore_bd_t* device)
  *
  * Function Description:
  *   @brief  This function initializes the underlying block device
- *           (in this case internal flash).
+ *           (in this case external flash).
  *
  *   @param void
- *   @return None
+ *   @return void
  *
  */
 void app_kvstore_bd_init(void)
 {
-    result = cyhal_flash_init(&flash_obj);
-    if(result != CY_RSLT_SUCCESS)
+    cy_rslt_t rslt;
+
+    /* Initialize the QSPI*/
+    rslt = cy_serial_flash_qspi_init(smifMemConfigs[0], CYBSP_QSPI_D0,
+                                     CYBSP_QSPI_D1, CYBSP_QSPI_D2, CYBSP_QSPI_D3,
+                                     NC,NC, NC, NC, CYBSP_QSPI_SCK,
+                                     CYBSP_QSPI_SS, qspi_bus_freq_hz);
+
+    /*Check if the QSPI initialization was successful */
+    if (CY_RSLT_SUCCESS == rslt)
     {
-        printf("Internal flash initialization failed! \n");
+        printf("successfully initialized QSPI \n");
+    }
+    else
+    {
+        printf("failed to initialize QSPI \n");
         CY_ASSERT(0);
     }
 
-    cyhal_flash_get_info(&flash_obj, &flash_info);
-    flash_block_info = flash_info.blocks[AUXILIARY_FLASH_BLOCK];
 }
-
-void get_kvstore_init_params(uint32_t* length, uint32_t* start_addr)
+/**
+ * Function Name: get_kvstore_init_params
+ *
+ * Function Description:
+ *   @brief  This function is used to define the bond data storage
+ *         (in this case external flash).
+ *
+ *   @param uint32_t *start_addr: Start Address to erase the data
+ *                                from the device.
+ *   @param uint32_t *length    : Length of the data that needs to be erased
+ *
+ *   @return void
+ *
+ */
+void get_kvstore_init_params(uint32_t *length, uint32_t *start_addr)
 {
-    *length = flash_block_info.page_size * AUXILIARY_FLASH_LENGTH;
+    uint32_t sector_size = 0;
 
-    *start_addr = flash_block_info.start_address +
-                  flash_block_info.size - (*length);
+    /* If the device is not a hybrid memory, use last sector to erase since
+     * first sector has some configuration data used during boot from
+     * flash operation.
+     */
+    if (0u == smifMemConfigs[0]->deviceCfg->hybridRegionCount)
+    {
+        *start_addr = (smifMemConfigs[0]->deviceCfg->memSize/2 -
+                       smifMemConfigs[0]->deviceCfg->eraseSize *2);
+    }
+
+    /* Define the space to be used for Bond Data Storage */
+    sector_size = cy_serial_flash_qspi_get_erase_size(*start_addr);
+    *length = (sector_size * 2);
 }
-
 
 #endif
 /* END OF FILE [] */
-

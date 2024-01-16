@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2024, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -57,7 +57,7 @@
 #include "cy_serial_flash_qspi.h"
 #include "app_bt_bonding.h"
 #include <inttypes.h>
-#include "app_internal_aux_flash.h"
+#include "app_flash_common.h"
 
 /*******************************************************************
  * Variable Definitions

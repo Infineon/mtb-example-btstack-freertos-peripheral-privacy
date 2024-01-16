@@ -7,7 +7,7 @@
 * Related Document: See README.md
 *
 *******************************************************************************
-* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2024, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -42,7 +42,7 @@
 /*******************************************************************************
 *        Header Files
 *******************************************************************************/
-#include "app_internal_aux_flash.h"
+#include "app_flash_common.h"
 #include "wiced_bt_stack.h"
 #include "cybsp.h"
 #include "cyhal.h"
@@ -59,7 +59,7 @@
 #include "cybt_platform_config.h"
 #include "cybsp_bt_config.h"
 #include "app_bt_bonding.h"
-/*******************************************************************
+/******************************************************************
  * Variable Definitions
  ******************************************************************/
 
@@ -102,7 +102,11 @@ int main()
     __enable_irq();
 
     /* Initialize retarget-io to use the debug UART port */
-    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+    cy_result = cy_retarget_io_init_fc(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,CYBSP_DEBUG_UART_CTS,CYBSP_DEBUG_UART_RTS,CY_RETARGET_IO_BAUDRATE);
+    if (cy_result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
 
     printf("************* Peripheral Privacy App Start***** ************************\n");
     display_menu();

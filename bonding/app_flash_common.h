@@ -42,6 +42,7 @@
 
 #ifndef __APP_SERIAL_FLASH_H_
 #define __APP_SERIAL_FLASH_H_
+
 /*******************************************************************************
  * Header files
  ******************************************************************************/
@@ -52,6 +53,12 @@
 #define AUXILIARY_FLASH_BLOCK                (1)
 #define AUXILIARY_FLASH_LENGTH               (16)
 
+#ifndef USE_INTERNAL_FLASH
+/* For external flash */
+#define  QSPI_BUS_FREQ                       (50000000l)
+#define  QSPI_GET_ERASE_SIZE                 (0)
+
+#endif
 /* For internal flash */
 
 /*******************************************************************************
