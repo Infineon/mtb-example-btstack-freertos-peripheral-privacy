@@ -97,6 +97,7 @@ int main()
 
     /* Initialize the board support package */
     cy_result = cybsp_init();
+    cyhal_syspm_lock_deepsleep();
 
     /* Enable global interrupts */
     __enable_irq();
