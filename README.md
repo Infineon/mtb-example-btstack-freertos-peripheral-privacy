@@ -10,7 +10,7 @@ Features demonstrated:
 
 [View this README on GitHub.](https://github.com/Infineon/mtb-example-btstack-freertos-peripheral-privacy)
 
-[Provide feedback on this code example.](https://cypress.co1.qualtrics.com/jfe/form/SV_1NTns53sK2yiljn?Q_EED=eyJVbmlxdWUgRG9jIElkIjoiQ0UyMzM3OTYiLCJTcGVjIE51bWJlciI6IjAwMi0zMzc5NiIsIkRvYyBUaXRsZSI6IkJsdWV0b290aCZyZWc7IExFIHBlcmlwaGVyYWwgcHJpdmFjeSIsInJpZCI6ImFtbWwiLCJEb2MgdmVyc2lvbiI6IjQuMC4wIiwiRG9jIExhbmd1YWdlIjoiRW5nbGlzaCIsIkRvYyBEaXZpc2lvbiI6Ik1DRCIsIkRvYyBCVSI6IklDVyIsIkRvYyBGYW1pbHkiOiJCVEFCTEUifQ==)
+[Provide feedback on this code example.](https://cypress.co1.qualtrics.com/jfe/form/SV_1NTns53sK2yiljn?Q_EED=eyJVbmlxdWUgRG9jIElkIjoiQ0UyMzM3OTYiLCJTcGVjIE51bWJlciI6IjAwMi0zMzc5NiIsIkRvYyBUaXRsZSI6IkJsdWV0b290aCZyZWc7IExFIHBlcmlwaGVyYWwgcHJpdmFjeSIsInJpZCI6InNoYWhzaHViaGFtcyIsIkRvYyB2ZXJzaW9uIjoiNS4wLjAiLCJEb2MgTGFuZ3VhZ2UiOiJFbmdsaXNoIiwiRG9jIERpdmlzaW9uIjoiTUNEIiwiRG9jIEJVIjoiSUNXIiwiRG9jIEZhbWlseSI6IkJUQUJMRSJ9)
 
 
 ## Requirements
@@ -41,7 +41,7 @@ Features demonstrated:
 - [PSoC&trade; 6 Wi-Fi Bluetooth&reg; pioneer kit](https://www.infineon.com/CY8CKIT-062-WIFI-BT) (`CY8CKIT-062-WIFI-BT`)
 - [PSoC&trade; 62S1 Wi-Fi Bluetooth&reg; pioneer kit](https://www.infineon.com/CYW9P62S1-43438EVB-01) (`CYW9P62S1-43438EVB-01`)
 - [PSoC&trade; 62S1 Wi-Fi Bluetooth&reg; pioneer kit](https://www.infineon.com/CYW9P62S1-43012EVB-01) (`CYW9P62S1-43012EVB-01`)
-- [PSoC&trade; 62S2 evaluation kit](https://www.infineon.com/CY8CEVAL-062S2) (`CY8CEVAL-062S2`, `CY8CEVAL-062S2-LAI-4373M2`, `CY8CEVAL-062S2-MUR-43439M2`,,`CY8CEVAL-062S2-CYW43022CUB`)
+- [PSoC&trade; 62S2 evaluation kit](https://www.infineon.com/CY8CEVAL-062S2) (`CY8CEVAL-062S2`, `CY8CEVAL-062S2-LAI-4373M2`, `CY8CEVAL-062S2-MUR-43439M2`,,`CY8CEVAL-062S2-CYW43022CUB`,`CY8CEVAL-062S2-CYW955513SDM2WLIPA`)
 - [PSoC&trade; 6 Bluetooth&reg; LE pioneer kit](https://www.infineon.com/CY8CKIT-062-BLE) (`CY8CKIT-062-BLE`)
 - [PSoC&trade; 6 Bluetooth&reg; LE prototyping kit](https://www.infineon.com/CY8CPROTO-063-BLE) (`CY8CPROTO-063-BLE`)
 - [EZ-BLE Arduino Evaluation Board](https://www.infineon.com/cms/en/product/evaluation-boards/cyble-416045-eval/) (`CYBLE-416045-EVAL`)
@@ -377,6 +377,7 @@ Document title: *CE233796* - *Bluetooth&reg; LE peripheral privacy*
 | 2.2.0   | New Error Handling change |
 | 3.0.0   | Added support for CY8CEVAL-062S2-CYW43022CUB CYW989829M2EVB-01 and CYW920829M2EVK-02 |
 | 4.0.0   | Added support for CYW989829M2EVB-03, BSP and BTStack-integration major update for BT Firmware
+| 5.0.0   | Added support for CY8CEVAL-062S2-CYW955513SDM2WLIPA
 <br />
 
 
