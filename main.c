@@ -69,7 +69,7 @@ QueueHandle_t xUARTQueue;
 /* Queue for communication with LED Task*/
 QueueHandle_t xLEDQueue;
 
-/* FreeRTOS task handle for button task. Button task is used to start advertisment
+/* FreeRTOS task handle for button task. Button task is used to start advertisement
  * or enable/disable notification from peer */
 TaskHandle_t  button_task_handle;
 
@@ -92,7 +92,7 @@ int main()
     cy_rslt_t cy_result;
     wiced_result_t wiced_result;
 
-    /*Initialize the block device used by kv-store for perfroming read/write operations to the flash*/
+    /*Initialize the block device used by kv-store for performing read/write operations to the flash*/
     app_kvstore_bd_config(&block_device);
 
     /* Initialize the board support package */
