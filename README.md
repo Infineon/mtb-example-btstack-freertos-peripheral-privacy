@@ -10,14 +10,14 @@ Features demonstrated:
 
 [View this README on GitHub.](https://github.com/Infineon/mtb-example-btstack-freertos-peripheral-privacy)
 
-[Provide feedback on this code example.](https://cypress.co1.qualtrics.com/jfe/form/SV_1NTns53sK2yiljn?Q_EED=eyJVbmlxdWUgRG9jIElkIjoiQ0UyMzM3OTYiLCJTcGVjIE51bWJlciI6IjAwMi0zMzc5NiIsIkRvYyBUaXRsZSI6IkJsdWV0b290aCZyZWc7IExFIHBlcmlwaGVyYWwgcHJpdmFjeSIsInJpZCI6ImFtbWwiLCJEb2MgdmVyc2lvbiI6IjUuMS4wIiwiRG9jIExhbmd1YWdlIjoiRW5nbGlzaCIsIkRvYyBEaXZpc2lvbiI6Ik1DRCIsIkRvYyBCVSI6IklDVyIsIkRvYyBGYW1pbHkiOiJCVEFCTEUifQ==)
+[Provide feedback on this code example.](https://cypress.co1.qualtrics.com/jfe/form/SV_1NTns53sK2yiljn?Q_EED=eyJVbmlxdWUgRG9jIElkIjoiQ0UyMzM3OTYiLCJTcGVjIE51bWJlciI6IjAwMi0zMzc5NiIsIkRvYyBUaXRsZSI6IkJsdWV0b290aCZyZWc7IExFIHBlcmlwaGVyYWwgcHJpdmFjeSIsInJpZCI6ImFtbWwiLCJEb2MgdmVyc2lvbiI6IjYuMC4wIiwiRG9jIExhbmd1YWdlIjoiRW5nbGlzaCIsIkRvYyBEaXZpc2lvbiI6Ik1DRCIsIkRvYyBCVSI6IklDVyIsIkRvYyBGYW1pbHkiOiJCVEFCTEUifQ==)
 
 
 ## Requirements
 
 - [ModusToolbox&trade;](https://www.infineon.com/modustoolbox) v3.2 or later (tested with v3.3)
 - Board support package (BSP) minimum required version for:
-   - AIROC&trade; CYW920829M2EVK-02/CYW989829M2EVB-01/CYW989829M2EVB-01: v2.0.0
+   - AIROC&trade; CYW920829M2EVK-02/CYW989829M2EVB-01: v3.0.0
    - PSOC&trade; 6 MCU: v5.0.0
    - XMC&trade; XMC7000 MCU: v2.3.0
 - Programming language: C
@@ -35,7 +35,7 @@ Features demonstrated:
 
 - [AIROC&trade; CYW20829 Bluetooth&reg; LE Evaluation Kit](https://www.infineon.com/CYW920829M2EVK-02) (`CYW920829M2EVK-02`) – Default value of `TARGET`
 - [PSOC&trade; 62S2 Wi-Fi Bluetooth&reg; Pioneer Kit](https://www.infineon.com/CY8CKIT-062S2-43012) (`CY8CKIT-062S2-43012`)
-- [AIROC&trade; CYW89829 Bluetooth&reg; LE Evaluation Kit](https://www.infineon.com/cms/en/product/promopages/CYW89829-Bluetooth-LE-MCU) (`CYW989829M2EVB-01`, `CYW989829M2EVB-03`)
+- [AIROC&trade; CYW89829 Bluetooth&reg; LE Evaluation Kit](https://www.infineon.com/cms/en/product/promopages/CYW89829-Bluetooth-LE-MCU) (`CYW989829M2EVB-01`)
 - [PSOC&trade; 6 Wi-Fi Bluetooth&reg; Prototyping Kit](https://www.infineon.com/CY8CPROTO-062-4343W) (`CY8CPROTO-062-4343W`)
 - [PSOC&trade; 6 Wi-Fi Bluetooth&reg; Pioneer Kit](https://www.infineon.com/CY8CKIT-062-WIFI-BT) (`CY8CKIT-062-WIFI-BT`)
 - [PSOC&trade; 62S1 Wi-Fi Bluetooth&reg; Pioneer Kit](https://www.infineon.com/CYW9P62S1-43438EVB-01) (`CYW9P62S1-43438EVB-01`)
@@ -417,6 +417,7 @@ Version | Description of change
 4.0.0   | Added support for CYW989829M2EVB-03, BSP and BTStack-integration major update for *Bluetooth&reg; firmware
 5.0.0   | Added support for CY8CEVAL-062S2-CYW955513SDM2WLIPA
 5.1.0   | Updated to support ModusToolbox&trade; v3.3 <br> Added support for KIT_XMC72_EVK_MUR_43439M2
+6.0.0   | Remove support for CYW989829M2EVB-03 and updated btstack-integration with version 6.X
 <br>
 
 
